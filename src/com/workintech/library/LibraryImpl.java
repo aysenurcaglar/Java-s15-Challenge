@@ -2,12 +2,17 @@ package com.workintech.library;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class LibraryImpl implements Library {
-    protected Map<String, Book> books = new HashMap<>();
-    protected Map<String, Reader> members = new HashMap<>();
-    protected Map<String, String> memberCredentials = new HashMap<>();
+    protected Map<String, Book> books = new TreeMap<>();
+    protected Map<String, Reader> members = new TreeMap<>();
+    protected Map<String, String> memberCredentials = new TreeMap<>();
 
+    public void addMember(Reader reader) {
+        members.put(reader.getMemberID(), reader);
+        memberCredentials.put(reader.getMemberID(), reader.getPassword());
+    }
 
     @Override
     public void newPrintBook(String title, String authorName, double price, BookStatus status) {
@@ -21,16 +26,6 @@ public class LibraryImpl implements Library {
         Author author = new Author(authorName);
         Book book = new DigitalBook(title, author, price);
         books.put(book.getBookID(), book);
-    }
-
-    @Override
-    public void showBook(String bookID) {
-        Book book = books.get(bookID);
-        if (book != null) {
-            book.display();
-        } else {
-            System.out.println("Book not found.");
-        }
     }
 
     @Override
@@ -87,9 +82,22 @@ public class LibraryImpl implements Library {
 
     @Override
     public boolean authenticate(String memberID, String password) {
-        if (memberCredentials.containsKey(memberID)) {
-            return memberCredentials.get(memberID).equals(password);
+        if (!memberCredentials.containsKey(memberID)) {
+            return false;
         }
-        return false;
+        return memberCredentials.get(memberID).equals(password);
+    }
+
+    @Override
+    public void displayAllBooks() {
+        if (books.isEmpty()) {
+            System.out.println("There are no books in the library.");
+            return;
+        }
+
+        System.out.println("** Books in the Library **");
+        for (Book book : books.values()) {
+            book.display();
+        }
     }
 }

@@ -1,21 +1,25 @@
 package com.workintech.library;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class Reader implements Person {
     private static int defMemberID = 1000; // Static variable to generate member IDs
     private String memberID;
     private String name;
+    private String password;
     private MemberType type;
-    private Date dateOfMembership;
+    private LocalDate dateOfMembership;
     private int noOfBooksIssued;
     private int maxBookLimit;
 
-    public Reader(String name, MemberType type) {
+    public Reader(String name, MemberType type, String password) {
         this.memberID = generateMemberID();
         this.name = name;
+        this.password = password;
         this.type = type;
-        this.dateOfMembership = new Date(); // Set to current date
+        this.dateOfMembership = LocalDate.now(); // Set to current date
         this.noOfBooksIssued = 0;
         this.maxBookLimit = 5;
     }
@@ -24,73 +28,61 @@ public class Reader implements Person {
         return "M" + Reader.defMemberID++;
     }
 
-    public boolean login(String password, Library library) {
-        if (library.authenticate(memberID, password)) {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean login(Library library) {
+        return library.authenticate(memberID, password);
     }
 
     public void borrowBook(String bookID, LibraryImpl library) {
-        if (noOfBooksIssued >= maxBookLimit) {
-            System.out.println("You have reached the maximum borrowing limit.");
-            return;
-        }
 
-        // bu limit bug'ını çöz
-
-        // Check if book is available
         Book book = library.books.get(bookID);
-        if (book == null) {
-            System.out.println("Book not found.");
-            return;
-        }
 
-        if (book.getStatus() == BookStatus.BORROWED) {
-            System.out.println("This book is already borrowed by someone else.");
-            return;
-        }
+        int remainingLimit = maxBookLimit - noOfBooksIssued;
 
-        // Update book status and borrower information
-        book.setStatus(BookStatus.BORROWED);
-        book.setDateOfBorrowing(new Date());
-        book.setBorrowerID(this.memberID);
-        noOfBooksIssued++;
-        maxBookLimit--;
-        System.out.println("Book borrowed successfully!");
+        if (remainingLimit <= 0) {
+            System.out.println("You have reached the maximum borrowing limit.");
+        } else {
+            if (book == null) {
+                System.out.println("Book not found.");
+            } else if (book.getStatus() == BookStatus.BORROWED) {
+                System.out.println("This book is already borrowed by someone else.");
+            } else {
+                book.setStatus(BookStatus.BORROWED);
+                book.setDateOfBorrowing(LocalDate.now());
+                book.setBorrowerID(this.memberID);
+                noOfBooksIssued++;
+                System.out.println(book.getTitle() + " borrowed successfully!");
+            }
+        }
     }
 
     public void returnBook(String bookID, LibraryImpl library) {
-        // Check if book exists
+
         Book book = library.books.get(bookID);
+
         if (book == null) {
             System.out.println("Book not found.");
-            return;
+        } else if (!memberID.equals(book.getBorrowerID())) {
+            System.out.println("You have not borrowed " + book.getTitle() + ".");
+        } else {
+            book.setStatus(BookStatus.AVAILABLE);
+            book.setBorrowerID(null);
+            book.setDateOfBorrowing(null);
+            noOfBooksIssued--;
+            System.out.println(book.getTitle() + " returned successfully!");
         }
-
-        // Check if the member has borrowed the book
-        if (!memberID.equals(book.getBorrowerID())) {
-            System.out.println("You have not borrowed this book.");
-            return;
-        }
-
-        // Update book status and borrower information
-        book.setStatus(BookStatus.AVAILABLE);
-        book.setBorrowerID(null);
-        book.setDateOfBorrowing(null);
-        noOfBooksIssued--;
-        maxBookLimit++;
-        System.out.println("Book returned successfully!");
     }
 
     public void showMembershipInfo() {
+        int remainingLimit = maxBookLimit - noOfBooksIssued;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy");
+        String formattedDate = dateOfMembership.format(formatter);
+
         System.out.println("Name: " + this.name);
         System.out.println("Member ID: " + this.memberID);
         System.out.println("Member Type: " + this.type);
         System.out.println("Number of Books Borrowed: " + this.noOfBooksIssued);
-        System.out.println("Maximum Borrowing Limit: " + this.maxBookLimit);
-        System.out.println("Membership Since: " + this.dateOfMembership);
+        System.out.println("Maximum Borrowing Limit: " + remainingLimit);
+        System.out.println("Membership Since: " + formattedDate);
     }
 
 
@@ -111,6 +103,14 @@ public class Reader implements Person {
         this.name = name;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public MemberType getType() {
         return type;
     }
@@ -119,11 +119,11 @@ public class Reader implements Person {
         this.type = type;
     }
 
-    public Date getDateOfMembership() {
+    public LocalDate getDateOfMembership() {
         return dateOfMembership;
     }
 
-    public void setDateOfMembership(Date dateOfMembership) {
+    public void setDateOfMembership(LocalDate dateOfMembership) {
         this.dateOfMembership = dateOfMembership;
     }
 

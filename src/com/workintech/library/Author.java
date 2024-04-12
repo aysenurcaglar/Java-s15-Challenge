@@ -19,15 +19,4 @@ public class Author implements Person {
     public String getName() {
         return name;
     }
-
-    public void showBooks() {
-        if (books.isEmpty()) {
-            System.out.println("This author has no books in this library");
-        } else {
-            System.out.println("Books by " + name + ":");
-            for (Book book : books) {
-                System.out.println(" - " + book.getTitle());
-            }
-        }
-    }
 }

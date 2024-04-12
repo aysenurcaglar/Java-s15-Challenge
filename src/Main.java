@@ -3,12 +3,17 @@ import com.workintech.library.LibraryImpl;
 import com.workintech.library.MemberType;
 import com.workintech.library.Reader;
 
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         LibraryImpl library = new LibraryImpl();
+
+        Reader testReader = new Reader("John Doe", MemberType.STUDENT, "abcd");
+        library.addMember(testReader);
 
         library.newPrintBook("The Lord of the Rings", "J.R.R. Tolkien", 19.95, BookStatus.AVAILABLE);
         library.newPrintBook("Pride and Prejudice", "Jane Austen", 15.50, BookStatus.AVAILABLE);
@@ -46,7 +51,7 @@ public class Main {
                         System.out.println((i + 1) + ". " + MemberType.values()[i]);
                     }
                     int typeChoice = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     MemberType type = MemberType.values()[typeChoice - 1];
 
                     System.out.println("Enter your password: ");
@@ -58,11 +63,10 @@ public class Main {
                         if (newReader != null) {
                             System.out.println("Member ID already exists. Generating a new one...");
                         }
-                        newReader = new Reader(name, type);
+                        newReader = new Reader(name, type, newPassword);
                     } while (library.getMembers().containsKey(newReader.getMemberID()));
 
-                    library.getMembers().put(newReader.getMemberID(), newReader);
-                    library.getMemberCredentials().put(newReader.getMemberID(), newPassword);
+                    library.addMember(newReader);
 
                     System.out.println("Registration successful! Your Member ID is " + newReader.getMemberID());
                     System.out.println("Please keep this information for future logins.");
@@ -88,12 +92,13 @@ public class Main {
                 // Successful login
                 System.out.println("Welcome " + currentReader.getType() + " " + currentReader.getName() + ".");
                 // Display menu options
-                System.out.println("1. Search Book by Title");
-                System.out.println("2. Search Book by Author");
-                System.out.println("3. Borrow Book");
-                System.out.println("4. Return Book");
-                System.out.println("5. Show Membership Information");
-                System.out.println("6. Exit");
+                System.out.println("1. Search Books by Title");
+                System.out.println("2. Search Books by Author");
+                System.out.println("3. Borrow Books");
+                System.out.println("4. Return Books");
+                System.out.println("5. Display Membership Info");
+                System.out.println("6. Display All Books");
+                System.out.println("7. Exit");
                 System.out.println("Enter your choice: ");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -128,6 +133,9 @@ public class Main {
                         currentReader.showMembershipInfo();
                         break;
                     case 6:
+                        library.displayAllBooks();
+                        break;
+                    case 7:
                         running = false;
                         break;
                     default:

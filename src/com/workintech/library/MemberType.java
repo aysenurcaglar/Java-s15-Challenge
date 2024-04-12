@@ -2,6 +2,6 @@ package com.workintech.library;
 
 public enum MemberType {
     STUDENT,
-    TEACHER,
+    FACULTY_MEMBER,
     LIBRARIAN
 }

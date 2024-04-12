@@ -1,7 +1,9 @@
 package com.workintech.library;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class Book {
@@ -11,7 +13,7 @@ public abstract class Book {
     private Author author;
     private double price;
     private BookStatus status;
-    private Date dateOfBorrowing;
+    private LocalDate dateOfBorrowing;
     private String borrowerID;
 
     public Book(String title, Author author, double price, BookStatus status) {
@@ -22,7 +24,7 @@ public abstract class Book {
         this.status = status;
     }
 
-    public Book(String title, Author author, double price, BookStatus status, Date dateOfBorrowing, String borrowerID) {
+    public Book(String title, Author author, double price, BookStatus status, LocalDate dateOfBorrowing, String borrowerID) {
         this.bookID = generateBookID();
         this.title = title;
         this.author = author;
@@ -63,7 +65,7 @@ public abstract class Book {
         return status;
     }
 
-    public Date getDateOfBorrowing() {
+    public LocalDate getDateOfBorrowing() {
         return dateOfBorrowing;
     }
 
@@ -91,7 +93,7 @@ public abstract class Book {
         this.status = status;
     }
 
-    public void setDateOfBorrowing(Date dateOfBorrowing) {
+    public void setDateOfBorrowing(LocalDate dateOfBorrowing) {
         this.dateOfBorrowing = dateOfBorrowing;
     }
 
@@ -101,4 +103,15 @@ public abstract class Book {
 
     public abstract void display();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Book book)) return false;
+        return Objects.equals(getTitle(), book.getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getTitle());
+    }
 }
